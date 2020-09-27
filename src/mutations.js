@@ -21,12 +21,13 @@ const signup = async (_, { data: { name, email, password } }) => {
 const login = async (_, { email, password }) => {
   const query = "SELECT * FROM users WHERE email = $1;";
   const { rows } = await db.query(query, [email]);
-
-  const validPassword = await bcrypt.compare(password, rows[0].password);
-
-  if (rows.length === 1 && validPassword) {
-    const token = getToken(rows[0]);
-    return { token, user: rows[0] };
+  if (rows.length > 0) {
+    const validPassword = await bcrypt.compare(password, rows[0].password);
+  
+    if (rows.length === 1 && validPassword) {
+      const token = getToken(rows[0]);
+      return { token, user: rows[0] };
+    }
   }
   throw new Error("Email or password incorrect");
 };
